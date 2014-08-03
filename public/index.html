@@ -4,28 +4,39 @@
     <meta http-equiv="Content-Style-Type" content="text/css">
     <title>パストレーシングのテスト</title>
     <link rel="stylesheet" href="style.css" media="all" type="text/css" />
-    <script type="text/javascript" src="js/lib/numeric.js"></script>
-    <script type="text/javascript" src="js/lib/lodash.compat.js"></script>
-    <script type="text/javascript" src="js/lib/require.js"></script>
-    <script type="text/javascript" src="js/lib/traceur-runtime.js"></script>
-	<script type="text/javascript">
-        require.config({
-            baseUrl: "js"
-        });
-
-        // requireメソッドで文kつされたモジュールを読み込みます。
-        require(["main"],
-                function() {
-                    console.log("test");
-                }
-        );
-	</script>
 </head>
 <body>
 <canvas id="out" width="800" height="600" style="width: 800; height: 600; background: linear-gradient(cyan, black);"></canvas>
 
 <label for="samples">サンプル数</label>
-<input type="text" id="samples" />
+<input type="text" id="samples" value="2" />
+
+<span id="status">initialize...</span>
+
+<script type="text/javascript">
+    function status(s) {
+        var stat = document.getElementById("status");
+        stat.textContent = s;
+    }
+
+    var worker = new Worker("worker.js"),
+            canvas = document.getElementById("out"),
+            canvasCtx = canvas.getContext("2d"),
+            samples = document.getElementById("samples").value;
+
+    worker.addEventListener('message', function(e) {
+        status("rendering done");
+        canvasCtx.putImageData(e.data, 0, 0);
+    }, false);
+
+    status("rendering...");
+    worker.postMessage({
+        "imageData": canvasCtx.createImageData(canvas.width, canvas.height),
+        "width": canvas.width,
+        "height": canvas.height,
+        "samples": samples
+    });
+</script>
 
 </body>
 </html>

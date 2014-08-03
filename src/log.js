@@ -1,10 +1,10 @@
 /**
  * ログ出力関数。
  * 出力できないときは、何もしない
- * @param str 出力対象ログ文字列
+ * @param args 出力対象オブジェクト
  */
-export function log(str) {
+export function log(...args) {
     if (console && console.log) {
-        console.log(str);
+        console.log(...args);
     }
 }
