@@ -1,16 +1,31 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta http-equiv="Content-Style-Type" content="text/css">
-<title>パストレーシングのテスト</title>
-<link rel="stylesheet" href="style.css" media="all" type="text/css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="Content-Style-Type" content="text/css">
+    <title>パストレーシングのテスト</title>
+    <link rel="stylesheet" href="style.css" media="all" type="text/css" />
+    <script type="text/javascript" src="js/lib/numeric.js"></script>
+    <script type="text/javascript" src="js/lib/lodash.compat.js"></script>
+    <script type="text/javascript" src="js/lib/require.js"></script>
+    <script type="text/javascript" src="js/lib/traceur-runtime.js"></script>
+	<script type="text/javascript">
+        require.config({
+            baseUrl: "js"
+        });
+
+        // requireメソッドで文kつされたモジュールを読み込みます。
+        require(["main"],
+                function() {
+                    console.log("test");
+                }
+        );
+	</script>
 </head>
 <body>
 <canvas id="out" width="800" height="600" style="width: 800; height: 600; background: linear-gradient(cyan, black);"></canvas>
 
 <label for="samples">サンプル数</label>
-<input type="text" id="samples"></input>
+<input type="text" id="samples" />
 
-<script type="text/javascript" src="tracing.js"></script>
 </body>
 </html>

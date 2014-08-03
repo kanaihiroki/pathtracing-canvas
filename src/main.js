@@ -1,7 +1,9 @@
+import {render} from "render";
+// var render = require("./render");
+
 function main(args) {
-	require("src/lib").lib();
+    console.log("main");
+	render(640, 480, 16);
 }
 
 window.onload = main;
-
-exports.main = main;
