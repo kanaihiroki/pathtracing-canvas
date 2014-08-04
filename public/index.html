@@ -19,23 +19,31 @@
         stat.textContent = s;
     }
 
+    function render(y) {
+        worker.postMessage({
+            "imageData": canvasCtx.createImageData(canvas.width, 1),
+            "width": canvas.width,
+            "height": canvas.height,
+            "samples": samples,
+            "y": y
+        });
+    }
+
     var worker = new Worker("worker.js"),
             canvas = document.getElementById("out"),
             canvasCtx = canvas.getContext("2d"),
-            samples = document.getElementById("samples").value;
+            samples = document.getElementById("samples").value,
+            y = 0;
 
     worker.addEventListener('message', function(e) {
-        status("rendering done");
-        canvasCtx.putImageData(e.data, 0, 0);
+        canvasCtx.putImageData(e.data, 0, y);
+        ++y;
+        if (y < canvas.height) {
+            render(y);
+        }
     }, false);
 
-    status("rendering...");
-    worker.postMessage({
-        "imageData": canvasCtx.createImageData(canvas.width, canvas.height),
-        "width": canvas.width,
-        "height": canvas.height,
-        "samples": samples
-    });
+    render(y);
 </script>
 
 </body>

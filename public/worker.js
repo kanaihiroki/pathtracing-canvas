@@ -11,7 +11,7 @@ require.config({
 self.addEventListener('message', function(e) {
     require(["render"], function(render) {
             var args = e.data;
-            var imageData = render.render(args.imageData, args.width, args.height, args.samples);
+            var imageData = render.render(args.imageData, args.width, args.height, args.samples, args.y);
             self.postMessage(imageData);
         }
     );
