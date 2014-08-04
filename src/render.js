@@ -45,7 +45,7 @@ export function render(frameBuffer, width, height, samples, y) {
 
                 const ray = new Ray(camera_position, dir),
                     rad = radiance(ray, 0).asVector,
-                    difference = rad.div(samples * samples);
+                    difference = rad.mul(255).div(Math.pow(samples, 2));
 
                 accumulated_radiance = accumulated_radiance.add(difference);
             }
