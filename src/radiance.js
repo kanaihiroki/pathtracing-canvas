@@ -1,16 +1,14 @@
 import {Color} from "Color";
+import {intersect_scene} from "scene";
 
-
-const backgroundColor = new Color(0.0, 0.0, 0.0);
-
-function try_intersect_scene(ray) {
-    // TODO: stub
-    return [false, 0];
-}
+const backgroundColor = Object.freeze(new Color(0.0, 0.0, 0.0));
 
 export function radiance(ray, depth) {
-    const [ret, intersection] = try_intersect_scene(ray);
-    if (!ret) {
+    const intersection = intersect_scene(ray);
+    if (intersection == void 0) {
         return backgroundColor;
     }
+
+    // TODO: stub
+    return backgroundColor;
 }

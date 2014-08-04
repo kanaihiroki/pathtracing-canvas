@@ -29,7 +29,7 @@ gulp.task("traceur-runtime", function() {
         .pipe(gulp.dest(lib_dir));
 });
 
-gulp.task('traceur', function () {
+gulp.task('traceur', ["libs"], function () {
     return gulp.src(['src/*.js'])
         .pipe(traceur({
             sourceMap: true,
@@ -44,11 +44,9 @@ gulp.task('traceur', function () {
 gulp.task("libs", ["traceur-runtime", "bower"], function() {
 });
 
-gulp.task("build", ["traceur", "libs"], function() {
+gulp.task("build", ["traceur"], function() {
 });
 
-gulp.task("run", ["connect"], function() {
+gulp.task("default", ["connect"], function() {
     gulp.watch("src/**/*.js", ["build"]);
 });
-
-gulp.task('default', ["clean", 'build', "run"]);

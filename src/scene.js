@@ -1,33 +1,45 @@
 import {Sphere} from "Sphere";
 import {HitPoint, Intersection} from "Intersection";
+import {ReflectionType} from "material";
+import {Color} from "Color";
+import {V} from "vector";
 
 // レンダリングするシーンデータ
 const spheres = [
-    Sphere(1e5, Vec( 1e5+1, 40.8, 81.6), Color(), Color(0.75, 0.25, 0.25), REFLECTION_TYPE_DIFFUSE), // 左
-    Sphere(1e5, Vec(-1e5+99, 40.8, 81.6),Color(), Color(0.25, 0.25, 0.75), REFLECTION_TYPE_DIFFUSE), // 右
-    Sphere(1e5, Vec(50, 40.8, 1e5), Color(), Color(0.75, 0.75, 0.75), REFLECTION_TYPE_DIFFUSE), // 奥
-    Sphere(1e5, Vec(50, 40.8, -1e5+250), Color(), Color(), REFLECTION_TYPE_DIFFUSE), // 手前
-    Sphere(1e5, Vec(50, 1e5, 81.6), Color(), Color(0.75, 0.75, 0.75), REFLECTION_TYPE_DIFFUSE), // 床
-    Sphere(1e5, Vec(50, -1e5+81.6, 81.6),Color(), Color(0.75, 0.75, 0.75), REFLECTION_TYPE_DIFFUSE), // 天井
-    Sphere(20,Vec(65, 20, 20), Color(), Color(0.25, 0.75, 0.25), REFLECTION_TYPE_DIFFUSE), // 緑球
-    Sphere(16.5,Vec(27, 16.5, 47), Color(), Color(0.99, 0.99, 0.99), REFLECTION_TYPE_SPECULAR), // 鏡
-    Sphere(16.5,Vec(77, 16.5, 78), Color(), Color(0.99, 0.99, 0.99), REFLECTION_TYPE_REFRACTION), //ガラス
-    Sphere(15.0,Vec(50.0, 90.0, 81.6), Color(36,36,36), Color(), REFLECTION_TYPE_DIFFUSE) //照明
+    new Sphere(1e5, V( 1e5+1, 40.8, 81.6), new Color(), new Color(0.75, 0.25, 0.25), ReflectionType.DIFFUSE), // 左
+    new Sphere(1e5, V(-1e5+99, 40.8, 81.6),new Color(), new Color(0.25, 0.25, 0.75), ReflectionType.DIFFUSE), // 右
+    new Sphere(1e5, V(50, 40.8, 1e5), new Color(), new Color(0.75, 0.75, 0.75), ReflectionType.DIFFUSE), // 奥
+    new Sphere(1e5, V(50, 40.8, -1e5+250), new Color(), new Color(), ReflectionType.DIFFUSE), // 手前
+    new Sphere(1e5, V(50, 1e5, 81.6), new Color(), new Color(0.75, 0.75, 0.75), ReflectionType.DIFFUSE), // 床
+    new Sphere(1e5, V(50, -1e5+81.6, 81.6),new Color(), new Color(0.75, 0.75, 0.75), ReflectionType.DIFFUSE), // 天井
+    new Sphere(20,V(65, 20, 20), new Color(), new Color(0.25, 0.75, 0.25), ReflectionType.DIFFUSE), // 緑球
+    new Sphere(16.5,V(27, 16.5, 47), new Color(), new Color(0.99, 0.99, 0.99), ReflectionType.SPECULAR), // 鏡
+    new Sphere(16.5,V(77, 16.5, 78), new Color(), new Color(0.99, 0.99, 0.99), ReflectionType.REFRACTION), //ガラス
+    new Sphere(15.0,V(50.0, 90.0, 81.6), new Color(36,36,36), new Color(), ReflectionType.DIFFUSE) //照明
 ];
 
+/**
+ * 交差点を探す。
+ * @returns {Intersection} 交差点オブジェクト。見つからなかった場合はnull。
+ */
 export function intersect_scene(ray) {
-    let intersection = new Intersection(-1, new HitPoint());
+    let intersection = new Intersection(-1),
+        distance = Infinity;
 
-    // 線形探索
+    // 線形探索(Kd-木を使った最適化が可能とのこと)
     for (let i = 0, n = spheres.length; i < n; ++i) {
-        let hitpoint = spheres[i].intersect(ray)
+        let hitpoint = spheres[i].intersect(ray);
         if (hitpoint != void 0) {
             if (hitpoint.distance < distance) {
                 distance = hitpoint.distance;
-                object_id = i;
+                intersection.hitPoint = hitpoint;
             }
         }
     }
 
-    return (intersection->object_id != -1);
+    if (intersection.object_id === -1) {
+        return null;
+    } else {
+        return intersection;
+    }
 }

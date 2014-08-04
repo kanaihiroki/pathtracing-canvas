@@ -43,7 +43,6 @@ export function render(frameBuffer, width, height, samples, y) {
                 // Rayを飛ばす方向のベクトルを計算
                 const dir = normalize(screen_position.sub(camera_position));
 
-
                 const ray = new Ray(camera_position, dir),
                     rad = radiance(ray, 0).asVector,
                     difference = rad.div(samples * samples);

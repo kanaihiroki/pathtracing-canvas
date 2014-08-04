@@ -3,12 +3,12 @@ import {V} from "vector";
 
 export class Color {
     constructor(r, g, b) {
-        this._r = r;
-        this._g = g;
-        this._b = b;
+        this.r = r;
+        this.g = g;
+        this.b = b;
     }
 
     get asVector() {
-        return V(this._r, this._g, this._b, 255);
+        return V(this.r, this.g, this.b, 255);
     }
 }
