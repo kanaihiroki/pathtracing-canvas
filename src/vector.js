@@ -23,9 +23,24 @@ export function normalize(v) {
  * @returns {numeric.T} 計算された外積
  */
 export function cross(v1, v2) {
-    var a = v1.x;
-    var b = v2.x;
+    const a = v1.x,
+        b = v2.x;
     return V(a[1]*b[2] - a[2]*b[1],
             a[0]*b[2] - a[2]*b[0],
             a[0]*b[1] - a[1]*b[0]);
+}
+
+/**
+ * ベクトルの要素それぞれのかけ算。これといった名前はない?
+ * @param v1 左辺値
+ * @param v2 右辺値
+ * @returns {numeric.T} 計算結果
+ */
+export function multiply(v1, v2) {
+    const a = v1.x,
+        b = v2.x;
+    return V(
+        a[1]*b[1],
+        a[2]*b[2],
+        a[3]*b[3]);
 }

@@ -5,7 +5,7 @@ import {Color} from "Color";
 import {V} from "vector";
 
 // レンダリングするシーンデータ
-export const spheres = [
+const spheres = [
     new Sphere(1e5, V( 1e5+1, 40.8, 81.6), new Color(), new Color(0.75, 0.25, 0.25), ReflectionType.DIFFUSE), // 左
     new Sphere(1e5, V(-1e5+99, 40.8, 81.6),new Color(), new Color(0.25, 0.25, 0.75), ReflectionType.DIFFUSE), // 右
     new Sphere(1e5, V(50, 40.8, 1e5), new Color(), new Color(0.75, 0.75, 0.75), ReflectionType.DIFFUSE), // 奥
@@ -23,7 +23,7 @@ export const spheres = [
  * @returns {Intersection} 交差点オブジェクト。見つからなかった場合はnull。
  */
 export function intersect_scene(ray) {
-    let object_id = -1,
+    let object = void 0,
         hitpoint = new HitPoint(Infinity, null, null);
 
     // 線形探索(Kd-木を使った最適化が可能とのこと)
@@ -32,14 +32,14 @@ export function intersect_scene(ray) {
         if (newHitPoint != void 0) {
             if (newHitPoint.distance < hitpoint.distance) {
                 hitpoint = newHitPoint;
-                object_id = i;
+                object = spheres[i];
             }
         }
     }
 
-    if (object_id === -1) {
+    if (object == void 0) {
         return null;
     } else {
-        return Object.freeze(new Intersection(object_id, hitpoint));
+        return Object.freeze(new Intersection(object, hitpoint));
     }
 }

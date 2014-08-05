@@ -5,7 +5,7 @@ import {ReflectionType} from "material";
 import {normalize} from "vector";
 
 // 微小な値。交差判定で使う。
-const kEPS = 1e-6;
+export const kEPS = 1e-6;
 
 /**
  * 球を表すクラス。
@@ -24,7 +24,7 @@ export class Sphere {
         this.position = position;
         this.emission = emission;
         this.color = color;
-        this.refection_type = reflection_type;
+        this.reflection_type = reflection_type;
     }
 
     /*

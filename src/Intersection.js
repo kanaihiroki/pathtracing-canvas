@@ -21,11 +21,11 @@ export class HitPoint {
 export class Intersection {
     /**
      * 新しいインスタンスを生成する。
-     * @param object_id {number} 交差したオブジェクトのID
+     * @param object {Sphere} 交差したオブジェクト
      * @param hitPoint {HitPoint} 詳細な交差した場所の情報
      */
-    constructor(object_id, hitPoint) {
-        this.object_id = object_id;
+    constructor(object, hitPoint) {
+        this.object = object;
         this.hitPoint = hitPoint;
     }
 }
