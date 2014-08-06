@@ -13,7 +13,6 @@ const backgroundColor = Object.freeze(new Color(0.0, 0.0, 0.0)),
 // TODO: 移動
 const kIor = 1.5; // ガラスの屈折率
 
-
 /**
  * コサイン項を使った重点的サンプリング。
  * ランバート反射面において BRDFは(反射率)/π となる。
@@ -37,14 +36,19 @@ function sample_diffuse(u, v, w) {
 
 function reflect(normal, ray) {
     // TODO: ここも時間がないからよくわからない
-    const cos = normal.dot(ray.dir);
+    const cos = normal.dot(ray.dir).x;
     return ray.dir.sub(normal.mul(2.0 * cos));
 }
 
 export function radiance(ray, depth) {
+    if (!ray.dir.x[0]) {
+        throw "NaN found";
+    }
+
     const intersection = intersect_scene(ray);
     if (intersection == void 0) {
-        return backgroundColor;
+        // log("black", backgroundColor.asVector.x);
+        return backgroundColor.asVector;
     }
 
     const object = intersection.object,
@@ -69,8 +73,9 @@ export function radiance(ray, depth) {
     // ロシアンルーレットを実行し追跡を打ち切るかどうかを判断する。
     // ただしDepth回の追跡は保障する。
     if (depth > kDepth) {
-        if (Math.random() >= russian_roulette_probability)
-            return object.emission;
+        if (Math.random() >= russian_roulette_probability) {
+            return object.emission.asVector;
+        }
     } else { // 最小試行回数以下では必ずレイの追跡を続ける。
         russian_roulette_probability = 1.0;
     }
@@ -83,17 +88,17 @@ export function radiance(ray, depth) {
         // 完全拡散面
         case ReflectionType.DIFFUSE: {
             // orienting_normalの方向を基準とした正規直交基底(w, u, v)を作る。この基底に対する半球内で次のレイを飛ばす。
-            let w, u, v;
-            w = orienting_normal;
             // ベクトルwと直交するベクトルを作る。
             // w.xが0に近い場合とそうでない場合とで使うベクトルを変える。
-            u = Math.abs(w.x[0]) > kEPS
-                ? normalize(cross(V(0.0, 1.0, 0.0), w))
-                : normalize(cross(V(1.0, 0.0, 0.0), w));
-            v = cross(w, u);
+            const w = orienting_normal,
+                u = Math.abs(w.x[0]) > kEPS
+                    ? normalize(cross(V(0.0, 1.0, 0.0), w))
+                    : normalize(cross(V(1.0, 0.0, 0.0), w)),
+                v = cross(w, u);
 
             // 次にレイを飛ばす方向をインポータンスサンプリングで取得。
             dir = sample_diffuse(u, v, w);
+            // log(dir.x);
 
             /*
              レンダリング方程式に対するモンテカルロ積分を考えると、outgoing_radiance = weight * incoming_radiance。
@@ -136,41 +141,48 @@ export function radiance(ray, depth) {
                 r2 = hitpoint.normal.mul(into ? 1.0 : -1.0).mul(ddn * nnt + Math.sqrt(cos2t)),
                 refraction_ray = new Ray(hitpoint.position, normalize(r1.sub(r2)));
 
-// SchlickによるFresnelの反射係数の近似を使う
-            const a = nt - nc, b = nt + nc;
-            const R0 = (a * a) / (b * b);
+            // SchlickによるFresnelの反射係数の近似を使う
+            const a = nt - nc,
+                b = nt + nc,
+                R0 = Math.pow(a, 2) / Math.pow(b, 2),
+                c = 1.0 - (into ? -ddn : refraction_ray.dir.dot(orienting_normal.mul(-1.0)).x);
 
-            /*
-            const c = 1.0 - (into ? -ddn : dot(refraction_ray.dir, -1.0 * orienting_normal));
-            const Re = R0 + (1.0 - R0) * pow(c, 5.0); // 反射方向の光が反射してray.dirの方向に運ぶ割合。同時に屈折方向の光が反射する方向に運ぶ割合。
-            const nnt2 = pow(into ? nc / nt : nt / nc, 2.0); // レイの運ぶ放射輝度は屈折率の異なる物体間を移動するとき、屈折率の比の二乗の分だけ変化する。
-            const Tr = (1.0 - Re) * nnt2; // 屈折方向の光が屈折してray.dirの方向に運ぶ割合
+            // 反射方向の光が反射してray.dirの方向に運ぶ割合。同時に屈折方向の光が反射する方向に運ぶ割合。
+            const Re = R0 + (1.0 - R0) * Math.pow(c, 5.0);
+            // レイの運ぶ放射輝度は屈折率の異なる物体間を移動するとき、屈折率の比の二乗の分だけ変化する。
+            const nnt2 = Math.pow(into ? nc / nt : nt / nc, 2.0);
+            // 屈折方向の光が屈折してray.dirの方向に運ぶ割合
+            const Tr = (1.0 - Re) * nnt2;
 
-// 一定以上レイを追跡したら屈折と反射のどちらか一方を追跡する。（さもないと指数的にレイが増える）
-// ロシアンルーレットで決定する。
-            const double probability = 0.25 + 0.5 * Re;
+            // 一定以上レイを追跡したら屈折と反射のどちらか一方を追跡する。（さもないと指数的にレイが増える）
+            // ロシアンルーレットで決定する。
+            const probability = 0.25 + 0.5 * Re,
+                reflect_radiance = () => {return radiance(reflection_ray, depth+1).mul(Re); },
+                refract_radiance = () => {return radiance(refraction_ray, depth+1).mul(Tr); };
             if (depth > 2) {
-                if (rnd->next01() < probability) { // 反射
-                    incoming_radiance = radiance(reflection_ray, rnd, depth+1) * Re;
-                    weight = now_object.color / (probability * russian_roulette_probability);
+                if (Math.random() < probability) { // 反射
+                    incoming_radiance = reflect_radiance();
+                    weight = object.color.asVector.div(probability * russian_roulette_probability);
                 } else { // 屈折
-                    incoming_radiance = radiance(refraction_ray, rnd, depth+1) * Tr;
-                    weight = now_object.color / ((1.0 - probability) * russian_roulette_probability);
+                    incoming_radiance = refract_radiance();
+                    weight = object.color.asVector.div((1.0 - probability) * russian_roulette_probability);
                 }
             } else { // 屈折と反射の両方を追跡
-                incoming_radiance =
-                    radiance(reflection_ray, rnd, depth+1) * Re +
-                    radiance(refraction_ray, rnd, depth+1) * Tr;
-                weight = now_object.color / (russian_roulette_probability);
+                incoming_radiance = reflect_radiance().add(refract_radiance());
+                weight = object.color.asVector.div(russian_roulette_probability);
             }
-             */
         } break;
     }
 
-    // return object.emission.add(multiply(weight, incoming_radiance));
 
     // return now_object.emission + multiply(weight, incoming_radiance);
 
     // フラットシェーディング
-    return object.color;
+    // return object.color.asVector;
+
+    // パストレーシング
+    const outgoing_radiance = object.emission.asVector.add(multiply(weight, incoming_radiance));
+    // log(object.emission, outgoing_radiance.x);
+    // log("goout", outgoing_radiance.x);
+    return outgoing_radiance;
 }

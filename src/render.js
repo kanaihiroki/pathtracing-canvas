@@ -44,16 +44,33 @@ export function render(frameBuffer, width, height, samples, y) {
                 const dir = normalize(screen_position.sub(camera_position));
 
                 const ray = new Ray(camera_position, dir),
-                    rad = radiance(ray, 0).asVector,
-                    difference = rad.mul(255).div(Math.pow(samples, 2));
+                    rad = radiance(ray, 0),
+                    difference = rad.div(Math.pow(samples, 2));
 
                 accumulated_radiance = accumulated_radiance.add(difference);
             }
         }
 
-        var colorArray = accumulated_radiance.x;
-        return [colorArray[0], colorArray[1], colorArray[2], 255];
+        const colorArray = accumulated_radiance.x;
+        const ret = [to_int(colorArray[0]), to_int(colorArray[1]), to_int(colorArray[2]), 255];
+        console.log(ret);
+        return ret;
     });
+}
+
+function clamp(x){
+    if (x < 0.0)
+        return 0.0;
+    if (x > 1.0)
+        return 1.0;
+    return x;
+}
+
+const gamma = 1.0/2.2;
+
+function to_int(x){
+    const gamma_collected = Math.pow(clamp(x), gamma);
+    return Math.floor(gamma_collected * 255 + 0.5);
 }
 
 function updateCanvas(buffer, width, y, fn) {
