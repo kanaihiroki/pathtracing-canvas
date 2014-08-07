@@ -44,6 +44,14 @@
         }
     }, false);
 
+    worker.addEventListener("error", function(e) {
+        if (console) {
+            console.log(e);
+        } else {
+            alert("error occurred");
+        }
+    });
+
     render(y);
 </script>
 

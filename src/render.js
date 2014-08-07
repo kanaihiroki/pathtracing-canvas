@@ -52,9 +52,7 @@ export function render(frameBuffer, width, height, samples, y) {
         }
 
         const colorArray = accumulated_radiance.x;
-        const ret = [to_int(colorArray[0]), to_int(colorArray[1]), to_int(colorArray[2]), 255];
-        console.log(ret);
-        return ret;
+        return [to_int(colorArray[0]), to_int(colorArray[1]), to_int(colorArray[2]), 255];
     });
 }
 

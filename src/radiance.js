@@ -4,7 +4,7 @@ import {ReflectionType} from "material";
 import {V,cross,normalize,multiply} from "vector";
 import {Ray} from "Ray";
 import {log} from "log";
-import {kEPS} from "sphere"; // TODO: もっといい場所に移動
+import {kEPS} from "Sphere"; // TODO: もっといい場所に移動
 
 const backgroundColor = Object.freeze(new Color(0.0, 0.0, 0.0)),
     kDepth = 5, // ロシアンルーレットで打ち切らない最小数
@@ -181,8 +181,5 @@ export function radiance(ray, depth) {
     // return object.color.asVector;
 
     // パストレーシング
-    const outgoing_radiance = object.emission.asVector.add(multiply(weight, incoming_radiance));
-    // log(object.emission, outgoing_radiance.x);
-    // log("goout", outgoing_radiance.x);
-    return outgoing_radiance;
+    return object.emission.asVector.add(multiply(weight, incoming_radiance));
 }
