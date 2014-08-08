@@ -9,18 +9,36 @@
 <body>
 <canvas id="out" width="800" height="600" style="width: 800; height: 600; background: linear-gradient(cyan, black);"></canvas>
 
-<label for="samples">サンプル数</label>
-<input type="text" id="samples" value="8" />
+<div>
+    <dl>
+        <dt>サンプル数</dt>
+        <dd><input type="text" id="samples" value="8" /></dd>
+        <dt>WebWorker並列度</dt>
+        <dd><input type="text" id="workers" value="8" /></dd>
+    </dl>
 
-<span id="status">initialize...</span>
-
+    <input type="button" value="再レンダリング" onclick="restartRender()" />
+</div>
+<p id="log"></p>
 <script type="text/javascript">
-    function status(s) {
-        var stat = document.getElementById("status");
-        stat.textContent = s;
+    // Globals
+    var canvas = document.getElementById("out"),
+            canvasCtx = canvas.getContext("2d"),
+            samples = select("#samples").value - 0,
+            workers = [],
+            logWindow = select("#log");
+
+    function log(s) {
+        logWindow.innerHTML += (s + "<br />");
     }
 
-    function render(y) {
+    function select(selector) {
+        return document.querySelector(selector);
+    }
+
+    function render(i, y) {
+        log("rendering line[" + i + "]...");
+        var worker = workers[i];
         worker.postMessage({
             "imageData": canvasCtx.createImageData(canvas.width, 1),
             "width": canvas.width,
@@ -30,29 +48,53 @@
         });
     }
 
-    var worker = new Worker("worker.js"),
-            canvas = document.getElementById("out"),
-            canvasCtx = canvas.getContext("2d"),
-            samples = document.getElementById("samples").value,
-            y = 0;
+    function onMessage(e) {
+        var imageData = e.data.imageData,
+                y = e.data.y;
+        canvasCtx.putImageData(imageData, 0, y);
 
-    worker.addEventListener('message', function(e) {
-        canvasCtx.putImageData(e.data, 0, y);
-        ++y;
+        log("rendering line[" + i + "] done.");
+
+        y += samples;
         if (y < canvas.height) {
             render(y);
         }
-    }, false);
+    }
 
-    worker.addEventListener("error", function(e) {
-        if (console) {
-            console.log(e);
-        } else {
-            alert("error occurred");
+    function createWorker() {
+        var worker = new Worker("worker.js");
+        worker.addEventListener('message', onMessage, false);
+        worker.addEventListener("error", log, false)
+        return worker;
+    }
+
+    function startRender() {
+        log("start rendering");
+        for (var i = 0; i < select("#workers").value - 0; ++i) {
+            workers.push(createWorker());
+            render(i, i);
         }
-    });
+    }
 
-    render(y);
+    function restartRender() {
+        samples = select("#samples").value - 0;
+
+        log("shutdown workers...");
+        for (var i = 0, n = workers.length; i < n; ++i) {
+            workers[i].terminate();
+        }
+
+        log("restart rendering");
+        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+        workers = [];
+        for (var i = 0; i < select("#workers").value - 0; ++i) {
+            workers.push(createWorker());
+            render(i, i);
+        }
+    }
+
+    window.addEventListener("load", startRender);
+
 </script>
 
 </body>

@@ -1,1 +1,8 @@
 /* style.css - スタイル定義 */
+#log {
+    font-size: small;
+    width: 80em;
+    height: 20em;
+    border: solid;
+    overflow: scroll;
+}

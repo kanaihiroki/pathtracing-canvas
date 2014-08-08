@@ -9,7 +9,7 @@ const camera_position = V(50.0, 52.0, 220.0),
 // スクリーンまでの距離
 const screen_dist  = 40.0;
 
-export function render(frameBuffer, width, height, samples, y) {
+export function render(imageData, width, height, samples, y) {
     // // ワールド座標系でのスクリーンの大きさ
     const screen_width = 30.0 * width / height,
         screen_height = 30.0;
@@ -19,7 +19,7 @@ export function render(frameBuffer, width, height, samples, y) {
         screen_y = normalize(cross(screen_x, camera_dir)).mul(screen_height),
         screen_center = camera_position.add(camera_dir.mul(screen_dist));
 
-    return updateCanvas(frameBuffer, width, y, (x, y) => {
+    return updateCanvas(imageData, width, y, (x, y) => {
         let accumulated_radiance = V(0.0, 0.0, 0.0);
 
         // 元の実装(edupt)では、supersamplesとsamplesでイテレーションしているが、
@@ -71,22 +71,16 @@ function to_int(x){
     return Math.floor(gamma_collected * 255 + 0.5);
 }
 
-function updateCanvas(buffer, width, y, fn) {
+function updateCanvas(imageData, width, y, fn) {
     for (let x = 0; x < width; ++x) {
         let color = fn(x, y);
         for (let j = 0; j < 4; ++j) {
-            buffer.data[x*4+j] = color[j];
+            imageData.data[x*4+j] = color[j];
         }
     }
 
-    /*
-    for (let i = 0, len = buffer.data.length; i < len; i += 4) {
-        var color = fn(i);
-        for (let j = 0; j < 4; ++j) {
-            buffer.data[i+j] = color[j];
-        }
-    }
-    */
-
-    return buffer;
+    return {
+        imageData: imageData,
+        y: y
+    };
 }
