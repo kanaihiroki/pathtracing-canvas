@@ -1,0 +1,30 @@
+{
+    "name": "pathtracing-canvas",
+    "description": "my path tracing implementation.",
+    "keywords": ["pathtracing"],
+	"private": true,
+    "ignore": [
+		"**/.*",
+		"bower_components",
+		"node_modules",
+		"output",
+		"tests",
+		"js",
+		"tmp",
+		"bower.json",
+		"Gruntfile.js",
+		"package.json"
+    ],
+    "dependencies": {
+		"lodash": "*",
+		"numericjs": "*",
+        "requirejs": "*"
+    },
+    "devDependencies": {
+    },
+    "overrides": {
+        "numericjs": {
+            "main": "src/numeric.js"
+        }
+    }
+}

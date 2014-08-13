@@ -1,0 +1,9 @@
+.*
+!/.bowerrc
+!/.gitignore
+/test-output/
+/output/
+/node_modules/
+/bower_components/
+/tmp/
+/public/js/
