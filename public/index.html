@@ -36,8 +36,9 @@
         return document.querySelector(selector);
     }
 
-    function render(i, y) {
-        log("rendering line[" + i + "]...");
+    function render(y) {
+        var i = y % workers.length;
+        log("rendering line[" + y + "]...");
         var worker = workers[i];
         worker.postMessage({
             "imageData": canvasCtx.createImageData(canvas.width, 1),
@@ -53,9 +54,9 @@
                 y = e.data.y;
         canvasCtx.putImageData(imageData, 0, y);
 
-        log("rendering line[" + i + "] done.");
+        log("rendering line[" + y + "] done.");
 
-        y += samples;
+        y += workers.length;
         if (y < canvas.height) {
             render(y);
         }
@@ -72,7 +73,7 @@
         log("start rendering");
         for (var i = 0; i < select("#workers").value - 0; ++i) {
             workers.push(createWorker());
-            render(i, i);
+            render(i);
         }
     }
 
@@ -87,10 +88,7 @@
         log("restart rendering");
         canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
         workers = [];
-        for (var i = 0; i < select("#workers").value - 0; ++i) {
-            workers.push(createWorker());
-            render(i, i);
-        }
+        startRender();
     }
 
     window.addEventListener("load", startRender);
