@@ -85,6 +85,6 @@ export class Sphere {
         const distance = t1 > kEPS ? t1 : t2,
             position = ray.org.add(ray.dir.mul(distance)),
             normal = normalize(position.sub(this.position));
-        return Object.freeze(new HitPoint(distance, normal, position));
+        return new HitPoint(distance, normal, position);
     }
 }

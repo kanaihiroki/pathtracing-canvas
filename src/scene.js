@@ -42,6 +42,6 @@ export function intersect_scene(ray) {
     if (object == void 0) {
         return null;
     } else {
-        return Object.freeze(new Intersection(object, hitpoint));
+        return new Intersection(object, hitpoint);
     }
 }

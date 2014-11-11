@@ -26,6 +26,7 @@ export function render(imageData, width, height, samples, y) {
         // samples回のイテレーションは必要ないと思われるので削除した
         for (let sx = 0; sx < samples; ++sx) {
             for (let sy = 0; sy < samples; ++sy) {
+
                 // rate は samples回のイテレーションで足し合わされることで合計1になる
                 // r1, r2 は rate/2 から 1 + rate/2 まで滑らかに動く
                 // samples = 2のとき, [1/4, 3/4]

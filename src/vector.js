@@ -3,7 +3,7 @@
  * @returns {numeric.T} 新しいベクトル
  */
 export function V(x, y, z) {
-    return Object.freeze(new numeric.T([x, y, z]));
+    return new numeric.T([x, y, z]);
 }
 
 /**
@@ -13,7 +13,7 @@ export function V(x, y, z) {
  */
 export function normalize(v) {
     const len = v.norm2();
-    return Object.freeze(v.div(len));
+    return v.div(len);
 }
 
 /**

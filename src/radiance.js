@@ -6,7 +6,7 @@ import {Ray} from "Ray";
 import {log} from "log";
 import {kEPS} from "Sphere"; // TODO: もっといい場所に移動
 
-const backgroundColor = Object.freeze(new Color(0.0, 0.0, 0.0)),
+const backgroundColor = new Color(0.0, 0.0, 0.0),
     kDepth = 5, // ロシアンルーレットで打ち切らない最小数
     kDpethLimit = 64; // ロシアンルーレットで打ち切り確率を上げるときの再帰数しきい値
 
