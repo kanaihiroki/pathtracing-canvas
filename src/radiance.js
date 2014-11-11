@@ -6,12 +6,12 @@ import {Ray} from "Ray";
 import {log} from "log";
 import {kEPS} from "Sphere"; // TODO: もっといい場所に移動
 
-const backgroundColor = new Color(0.0, 0.0, 0.0),
+var backgroundColor = new Color(0.0, 0.0, 0.0),
     kDepth = 5, // ロシアンルーレットで打ち切らない最小数
     kDpethLimit = 64; // ロシアンルーレットで打ち切り確率を上げるときの再帰数しきい値
 
 // TODO: 移動
-const kIor = 1.5; // ガラスの屈折率
+var kIor = 1.5; // ガラスの屈折率
 
 /**
  * コサイン項を使った重点的サンプリング。
@@ -24,7 +24,7 @@ const kIor = 1.5; // ガラスの屈折率
  * @returns {numeric.T} [u,v,x]空間の上を覆う半径1の半球上のどこかをさすベクトル
  */
 function sample_diffuse(u, v, w) {
-    const r1 = 2 * Math.PI * Math.random(),
+    var r1 = 2 * Math.PI * Math.random(),
         r2 = Math.random(),
         r2s = Math.sqrt(r2),
         u_ = u.mul(Math.cos(r1) * r2s),
@@ -36,27 +36,28 @@ function sample_diffuse(u, v, w) {
 
 function reflect(normal, ray) {
     // TODO: ここも時間がないからよくわからない
-    const cos = normal.dot(ray.dir).x;
+    var cos = normal.dot(ray.dir).x;
     return ray.dir.sub(normal.mul(2.0 * cos));
 }
 
 export function radiance(ray, depth) {
-    if (!ray.dir.x[0]) {
-        throw "NaN found";
-    }
+    // debug用assert
+    // if (!ray.dir.x[0]) {
+    //     throw "NaN found";
+    // }
 
-    const intersection = intersect_scene(ray);
+    var intersection = intersect_scene(ray);
     if (intersection == void 0) {
         // log("black", backgroundColor.asVector.x);
         return backgroundColor.asVector;
     }
 
-    const object = intersection.object,
+    var object = intersection.object,
         hitpoint = intersection.hitPoint;
 
     // 交差位置の法線（物体からのレイの入出を考慮）
     // N・R < 0 のとき、２つのベクトルの角度は、180度以上になるので
-    const orienting_normal = hitpoint.normal.dot(ray.dir).x < 0.0
+    var orienting_normal = hitpoint.normal.dot(ray.dir).x < 0.0
         ? hitpoint.normal // レイが物体にあたっている場合
         : (hitpoint.normal.mul(-1)); // レイが物体から出ている場合
 
@@ -90,7 +91,7 @@ export function radiance(ray, depth) {
             // orienting_normalの方向を基準とした正規直交基底(w, u, v)を作る。この基底に対する半球内で次のレイを飛ばす。
             // ベクトルwと直交するベクトルを作る。
             // w.xが0に近い場合とそうでない場合とで使うベクトルを変える。
-            const w = orienting_normal,
+            var w = orienting_normal,
                 u = Math.abs(w.x[0]) > kEPS
                     ? normalize(cross(V(0.0, 1.0, 0.0), w))
                     : normalize(cross(V(1.0, 0.0, 0.0), w)),
@@ -121,10 +122,10 @@ export function radiance(ray, depth) {
 
         case ReflectionType.REFRACTION: {
             // 屈折率kIorのガラス
-            const reflection_ray = new Ray(hitpoint.position, reflect(hitpoint.normal, ray)),
+            var reflection_ray = new Ray(hitpoint.position, reflect(hitpoint.normal, ray)),
                 into = hitpoint.normal.dot(orienting_normal).x > 0.0; // レイがオブジェクトから出るのか、入るのか
             // Snellの法則
-            const nc = 1.0, // 真空の屈折率
+            var nc = 1.0, // 真空の屈折率
                 nt = kIor, // オブジェクトの屈折率
                 nnt = into ? nc / nt : nt / nc,
                 ddn = ray.dir.dot(orienting_normal).x,
@@ -137,26 +138,26 @@ export function radiance(ray, depth) {
             }
 
             // 屈折の方向
-            const r1 = ray.dir.mul(nnt),
+            var r1 = ray.dir.mul(nnt),
                 r2 = hitpoint.normal.mul(into ? 1.0 : -1.0).mul(ddn * nnt + Math.sqrt(cos2t)),
                 refraction_ray = new Ray(hitpoint.position, normalize(r1.sub(r2)));
 
             // SchlickによるFresnelの反射係数の近似を使う
-            const a = nt - nc,
+            var a = nt - nc,
                 b = nt + nc,
                 R0 = Math.pow(a, 2) / Math.pow(b, 2),
                 c = 1.0 - (into ? -ddn : refraction_ray.dir.dot(orienting_normal.mul(-1.0)).x);
 
             // 反射方向の光が反射してray.dirの方向に運ぶ割合。同時に屈折方向の光が反射する方向に運ぶ割合。
-            const Re = R0 + (1.0 - R0) * Math.pow(c, 5.0);
+            var Re = R0 + (1.0 - R0) * Math.pow(c, 5.0);
             // レイの運ぶ放射輝度は屈折率の異なる物体間を移動するとき、屈折率の比の二乗の分だけ変化する。
-            const nnt2 = Math.pow(into ? nc / nt : nt / nc, 2.0);
+            var nnt2 = Math.pow(into ? nc / nt : nt / nc, 2.0);
             // 屈折方向の光が屈折してray.dirの方向に運ぶ割合
-            const Tr = (1.0 - Re) * nnt2;
+            var Tr = (1.0 - Re) * nnt2;
 
             // 一定以上レイを追跡したら屈折と反射のどちらか一方を追跡する。（さもないと指数的にレイが増える）
             // ロシアンルーレットで決定する。
-            const probability = 0.25 + 0.5 * Re,
+            var probability = 0.25 + 0.5 * Re,
                 reflect_radiance = () => {return radiance(reflection_ray, depth+1).mul(Re); },
                 refract_radiance = () => {return radiance(refraction_ray, depth+1).mul(Tr); };
             if (depth > 2) {

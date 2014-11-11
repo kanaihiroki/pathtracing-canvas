@@ -19,7 +19,7 @@ export function render(imageData, width, height, samples, y) {
         screen_y = normalize(cross(screen_x, camera_dir)).mul(screen_height),
         screen_center = camera_position.add(camera_dir.mul(screen_dist));
 
-    return updateCanvas(imageData, width, y, (x, y) => {
+    var ret = updateCanvas(imageData, width, y, (x, y) => {
         let accumulated_radiance = V(0.0, 0.0, 0.0);
 
         // 元の実装(edupt)では、supersamplesとsamplesでイテレーションしているが、
@@ -55,6 +55,8 @@ export function render(imageData, width, height, samples, y) {
         const colorArray = accumulated_radiance.x;
         return [to_int(colorArray[0]), to_int(colorArray[1]), to_int(colorArray[2]), 255];
     });
+
+    return ret;
 }
 
 function clamp(x){

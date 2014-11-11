@@ -12,8 +12,7 @@ export function V(x, y, z) {
  * @returns {numeric.T} 正規化したベクトル
  */
 export function normalize(v) {
-    const len = v.norm2();
-    return v.div(len);
+    return v.div(v.norm2());
 }
 
 /**

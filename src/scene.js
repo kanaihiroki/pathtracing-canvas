@@ -23,19 +23,18 @@ const spheres = [
  * @returns {Intersection} 交差点オブジェクト。見つからなかった場合はnull。
  */
 export function intersect_scene(ray) {
-    let object = void 0,
+    var object = void 0,
         hitpoint = new HitPoint(Infinity, null, null),
         object_id = -1;
 
     // 線形探索(Kd-木を使った最適化が可能とのこと)
-    for (let i = 0, n = spheres.length; i < n; ++i) {
-        const newHitPoint = spheres[i].intersect(ray);
-        if (newHitPoint != void 0) {
-            if (newHitPoint.distance < hitpoint.distance) {
-                hitpoint = newHitPoint;
-                object = spheres[i];
-                object_id = i;
-            }
+    for (var i = 0, n = spheres.length; i < n; ++i) {
+        var newHitPoint = spheres[i].intersect(ray);
+        if (newHitPoint != void 0 &&
+            newHitPoint.distance < hitpoint.distance) {
+            hitpoint = newHitPoint;
+            object = spheres[i];
+            object_id = i;
         }
     }
 
