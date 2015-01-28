@@ -1,7 +1,7 @@
 pathtracing-canvas
 ==================
 
-パストレーシングをjavascriptで[edupt](https://github.com/githole/edupt)を見ながら実装してみました。
+お勉強のためパストレーシングをjavascriptで[edupt](https://github.com/githole/edupt)を見ながら実装してみました。
 traceurを使ってECMA Script6からECMA Script5にコンパイルしていますが、
 非常に遅いコードが吐き出されることに開発途中で気付いたので、妥協したコードになっています。
 ベクトルの計算は自分で実装せず、numericjsを使っています。
@@ -15,8 +15,7 @@ firefoxとchromeで動作確認済みです。
 
 使用しているライブラリに関しては、それ自体のライセンスに従います。
 本プロジェクトに関しては、Creative Commonsで公開します。
-
-pathtracing-canvas (c) by Kanai Hiroki
+とはいえ、本家が素晴らしいのでこっちを見る価値はあまりないと思います。
 
 pathtracing-canvas is licensed under a
 Creative Commons Attribution-ShareAlike 3.0 Unported License.
